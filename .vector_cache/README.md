@@ -1,0 +1,1 @@
+Put GoogleNews word vectors **text** file in this directory.
