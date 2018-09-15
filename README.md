@@ -1,7 +1,8 @@
 # TD-DMN
 
-The un-cleaned code without appropriate comments and documentation will be 
-uploaded shortly for those who are eager to try the model themselves. The 
-processed data is only available for those holding ACE license and if you 
-assure you are qualified, please drop me an email and I'll arrange the data 
-transfer.
+This repo contains the un-cleaned code without appropriate comments 
+and documentation for the TD-DMN event detection model accepted to 
+EMNLP 2018.  
+ 
+The processed data samples are available for those with ACE license,
+so please drop me an email if you are qualified.
