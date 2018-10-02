@@ -492,7 +492,7 @@ class TDDMN(nn.Module):
                 nn.init.xavier_uniform_(param)
 
     def forward(self, doc_input_seqs, doc_input_entities, doc_input_lengths):
-        logger = logging.getLogger("[DMNPlus]")
+        logger = logging.getLogger("[TDDMN]")
         logger.setLevel(logging.INFO)
 
         # Unpack doc input lengths
