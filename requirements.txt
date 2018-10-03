@@ -1,0 +1,4 @@
+torch==0.4.0
+tensorboardX==1.4
+tensorboard==1.7.0
+git+https://github.com/pytorch/text.git

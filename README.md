@@ -12,3 +12,6 @@ please drop me an email showing your possession of the license for the processed
 
 ### Quick Start
 ``./run.sh``
+
+### Requirements
+The required external packages can be installed using ``pip install -r requirements.txt``.
