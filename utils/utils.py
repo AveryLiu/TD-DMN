@@ -13,6 +13,17 @@ def sequence_mask(sequence_length, max_len=None):
     return seq_range_expand < seq_length_expand
 
 
+def doc_flat_mask(sent_len, max_length=None):
+    if max_length is None:
+        max_length = sent_len.data.max()
+
+    masks = torch.empty(0, device=DEVICE)
+    for length in sent_len:
+        mask = sequence_mask(length, max_length)
+        masks = torch.cat([masks, mask.view(-1).float()])
+    return masks
+
+
 def pad_sent_attn(sent_attn):
     # numericalize it
     sent_attn = [[int(s) for s in d] for d in sent_attn]

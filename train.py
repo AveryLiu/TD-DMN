@@ -60,11 +60,10 @@ class Trainer(object):
             logits, word_attn, sent_attn = model(docs, entities,
                                                  {"doc_len": doc_len, "sen_len": sent_len})
 
-            loss = cal_loss_with_attn(logits, word_attn,
-                                      sent_attn, batch.LABEL, batch.WORD_ATTN,
-                                      batch.SENT_ATTN, doc_len, sent_len,
+            loss = cal_loss_with_attn(logits, batch.LABEL, sent_len,
                                       neg_pos_ratio=params.get("neg_pos_ratio", 0),
-                                      neg_label=label_vocab.stoi["other"], pad_label=label_vocab.stoi[PAD_TOKEN])
+                                      neg_label=label_vocab.stoi["other"],
+                                      pad_label=label_vocab.stoi[PAD_TOKEN])
 
             # Summary every 10 iteration
             if train_iter.iterations % 10 == 0:
@@ -100,9 +99,8 @@ class Trainer(object):
                                                                   {"doc_len": doc_len,
                                                                    "sen_len": sent_len})
                         # test loss
-                        loss_sum, loss_divider = cal_loss_with_attn(test_logits, word_attn,
-                                                                    sent_attn, batch.LABEL, None,
-                                                                    None, doc_len, sent_len, partial=True)
+                        loss_sum, loss_divider = cal_loss_with_attn(test_logits, batch.LABEL,
+                                                                    sent_len, partial=True)
                         tot_loss_sum += loss_sum.item()
                         tot_loss_divider += loss_divider.item()
 

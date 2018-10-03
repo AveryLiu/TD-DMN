@@ -6,24 +6,11 @@ and the true label and calculates the loss
 from utils.utils import *
 from torch.nn import functional as F
 from math import ceil
+from utils.utils import doc_flat_mask
 
 
-def doc_flat_mask(sent_len, max_length=None):
-    if max_length is None:
-        max_length = sent_len.data.max()
-
-    masks = torch.empty(0, device=DEVICE)
-    for length in sent_len:
-        mask = sequence_mask(length, max_length)
-        masks = torch.cat([masks, mask.view(-1).float()])
-    return masks
-
-
-def cal_loss_with_attn(logits, word_attns, sents_attns,
-                       event_labels, word_attn_labels,
-                       sents_attn_labels, doc_len, sent_len,
-                       neg_pos_ratio=0, neg_label=None, pad_label=None,
-                       partial=False):
+def cal_loss_with_attn(logits, event_labels, sent_len, neg_pos_ratio=0,
+                       neg_label=None, pad_label=None, partial=False):
     """
     logits -> (N, S, W, L)
     doc_len -> (N,)
@@ -52,33 +39,38 @@ def cal_loss_with_attn(logits, word_attns, sents_attns,
     loss = loss.squeeze() * doc_flat_mask(sent_len)
 
     # Perform negative sampling
-    assert neg_pos_ratio > 0
-    assert neg_label is not None
-    assert pad_label is not None
-    event_labels_flat = event_labels_flat.squeeze()
+    if neg_pos_ratio > 0:
+        assert neg_pos_ratio > 0
+        assert neg_label is not None
+        assert pad_label is not None
+        event_labels_flat = event_labels_flat.squeeze()
 
-    sample_mask = torch.zeros(event_labels_flat.size(0), device=DEVICE)
+        sample_mask = torch.zeros(event_labels_flat.size(0), device=DEVICE)
 
-    # Set the mask of positives to 1,
-    sample_mask[(event_labels_flat != neg_label) & (event_labels_flat != pad_label)] = 1
+        # Set the mask of positives to 1,
+        sample_mask[(event_labels_flat != neg_label) & (event_labels_flat != pad_label)] = 1
 
-    # Get positive label number
-    num_positive = torch.sum(sample_mask)
-    num_negative = torch.sum(event_labels_flat == neg_label)
-    num_negative_retained = ceil(num_positive * neg_pos_ratio) if num_positive > 0 else 10
+        # Get positive label number
+        num_positive = torch.sum(sample_mask)
+        num_negative = torch.sum(event_labels_flat == neg_label)
+        num_negative_retained = ceil(num_positive * neg_pos_ratio) if num_positive > 0 else 10
 
-    # Get negative indexes
-    neg_indexes = (event_labels_flat == neg_label).nonzero()
-    neg_retained_indexes = neg_indexes[torch.randperm(num_negative)][:num_negative_retained]
-    sample_mask[neg_retained_indexes.squeeze()] = 1
+        # Get negative indexes
+        neg_indexes = (event_labels_flat == neg_label).nonzero()
+        neg_retained_indexes = neg_indexes[torch.randperm(num_negative)][:num_negative_retained]
+        sample_mask[neg_retained_indexes.squeeze()] = 1
 
-    # Get ignored negative sample number
-    num_negative_ignored = (num_negative - num_negative_retained).float()
+        # Get ignored negative sample number
+        num_negative_ignored = (num_negative - num_negative_retained).float()
 
-    # mask loss with negative sampling
-    loss = loss.squeeze() * sample_mask
-    if partial:
-        return torch.sum(loss), (torch.sum(sent_len).float().to(DEVICE) - num_negative_ignored)
+        # mask loss with negative sampling
+        loss = loss.squeeze() * sample_mask
+        if partial:
+            return torch.sum(loss), (torch.sum(sent_len).float().to(DEVICE) - num_negative_ignored)
+        else:
+            return torch.sum(loss) / (torch.sum(sent_len).float().to(DEVICE) - num_negative_ignored)
     else:
-        return torch.sum(loss) / (torch.sum(sent_len).float().to(DEVICE) - num_negative_ignored)
-
+        if partial:
+            return torch.sum(loss), torch.sum(sent_len).float().to(DEVICE)
+        else:
+            return torch.sum(loss) / torch.sum(sent_len).float().to(DEVICE)
