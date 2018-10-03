@@ -12,7 +12,7 @@ import datetime
 from tensorboardX import SummaryWriter
 from models.TDDMN import TDDMN
 import json
-from config import params
+from params import params
 import argparse
 
 

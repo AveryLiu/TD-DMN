@@ -1,1 +1,0 @@
-python3 train.py --fold_num=0 --identifier="Fold_0_TDDMN" --max_train_epoch=200 --patience=96
