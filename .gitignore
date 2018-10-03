@@ -2,7 +2,6 @@ __pycache__
 .idea
 .DS_Store
 ace2005_processing
-run.sh
 runs/
 *.pyc
 
