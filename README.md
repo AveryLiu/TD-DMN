@@ -44,7 +44,11 @@ python train.py --fold_num=0 --identifier="TDDMN" --max_train_epoch=200 --patien
 The program writes two types of logs. The tensorboard logs summarizing training statistics are under 
 ``--tensorboard_log_dir`` and the model results logs are under ``--result_log_dir``. To view tensorboard
 logs, run ``tensorboard --logdir=tensorboard_log_dir`` and open ``http://localhost:6006`` in your browser. 
-The model results logs are plain text files.
+
+![Tensorboard result](./figures/tensorboard_result.png)
+
+The model results logs are plain text files and can be viewed with text editors.
+
 
 ### Acknowledgement
 The TD-DMN model is based on this [implementation](https://github.com/dandelin/Dynamic-memory-networks-plus-Pytorch) 
