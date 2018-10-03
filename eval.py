@@ -14,7 +14,8 @@ class Evaluator(object):
         return
 
     def doc_evaluate(self, logits, doc_ids, offsets,
-                     lengths, label_itos, mode, fold, verbose=False, partial=False):
+                     lengths, label_itos, mode,
+                     fold, verbose=False, partial=False):
         pred_classes = torch.argmax(logits, len(logits.size()) - 1)
 
         pred_list = []
@@ -25,31 +26,12 @@ class Evaluator(object):
                 for j in range(len(offsets[b][i])):
                     pred_list.append(
                         (doc_ids[b], int(offsets[b][i][j]), int(lengths[b][i][j]),
-                         label_itos[pred_classes[b][i][j]]
-                    ))
+                         label_itos[pred_classes[b][i][j]]))
         return Evaluator.evaluate_jiheng(
             self.golden_dict[fold][mode], pred_list, verbose, partial)
 
-    def evaluate(self, logits, doc_ids, offsets, lengths, label_itos, mode, verbose=False):
-        pred_classes = torch.argmax(logits, len(logits.size())-1)
-
-        # Sanity check
-        assert len(doc_ids) == len(offsets) == len(lengths) == len(logits)
-        assert [len(x) for x in offsets] == [len(x) for x in lengths]
-
-        pred_list = []
-        for i in range(len(offsets)):
-            for j in range(len(offsets[i])):
-                pred_list.append(
-                    (doc_ids[i], int(offsets[i][j]), int(lengths[i][j]),
-                     label_itos[pred_classes[i][j]])
-                )
-
-        _, _, _, p, r, f1 = Evaluator.evaluate_jiheng(
-            self.golden_dict[mode], pred_list, verbose)
-        return p, r, f1
-
     def load_golden(self, fold):
+        # path for golden files
         files = {"train": "./data/fold_{}/train/train.golden.dat".format(fold),
                  "test": "./data/fold_{}/test/test.golden.dat".format(fold)}
 

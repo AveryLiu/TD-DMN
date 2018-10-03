@@ -544,6 +544,7 @@ class TDDMN(nn.Module):
         else:
             doc_input_embedded_input_conv2d = doc_input_embedded
             doc_input_embedded_question_conv2d = doc_input_embedded
+            
         # Get facts
         contexts = doc_input_embedded_input_conv2d
 
@@ -564,7 +565,6 @@ class TDDMN(nn.Module):
         facts_attns = []  # facts attention in different pass
         for _ in range(self.num_of_pass):
             # facts_attn -> (N, S, S)
-            # TODO: add batch norm here
             M, facts_attn = self.memory(
                 facts, M,
                 Q_star, doc_len)

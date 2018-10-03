@@ -1,8 +1,3 @@
-"""
-Loss module takes in the model output logits
-and the true label and calculates the loss
-
-"""
 from utils.utils import *
 from torch.nn import functional as F
 from math import ceil
@@ -13,12 +8,8 @@ def cal_loss_with_attn(logits, event_labels, sent_len, neg_pos_ratio=0,
                        neg_label=None, pad_label=None, partial=False):
     """
     logits -> (N, S, W, L)
-    doc_len -> (N,)
     sent_len -> (N, S)
     event_labels -> (N, S, W)
-
-    word_attns -> (N, S, W)
-    sent_attns -> (N, S)
     """
     # Check dimension
     batch_size, sent_num, word_num, label_num = logits.size()
@@ -40,7 +31,6 @@ def cal_loss_with_attn(logits, event_labels, sent_len, neg_pos_ratio=0,
 
     # Perform negative sampling
     if neg_pos_ratio > 0:
-        assert neg_pos_ratio > 0
         assert neg_label is not None
         assert pad_label is not None
         event_labels_flat = event_labels_flat.squeeze()
