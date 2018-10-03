@@ -32,8 +32,8 @@ class Evaluator(object):
 
     def load_golden(self, fold):
         # path for golden files
-        files = {"train": "./data/fold_{}/train/train.golden.dat".format(fold),
-                 "test": "./data/fold_{}/test/test.golden.dat".format(fold)}
+        files = {"train": "./data/fold_{}/train.golden.dat".format(fold),
+                 "test": "./data/fold_{}/test.golden.dat".format(fold)}
 
         for name, path in files.items():
             with open(path, "r") as f:

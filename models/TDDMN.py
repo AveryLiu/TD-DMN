@@ -544,7 +544,7 @@ class TDDMN(nn.Module):
         else:
             doc_input_embedded_input_conv2d = doc_input_embedded
             doc_input_embedded_question_conv2d = doc_input_embedded
-            
+
         # Get facts
         contexts = doc_input_embedded_input_conv2d
 

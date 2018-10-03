@@ -9,7 +9,6 @@ runs/
 # Ignore everything under data fold except README and splits
 data/*
 !data/README.md
-!data/splits
 # Ignore everything under .vector_cache except README
 .vector_cache/*
 !.vector_cache/README.md
