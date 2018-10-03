@@ -4,6 +4,7 @@ __pycache__
 ace2005_processing
 run.sh
 runs/
+*.pyc
 
 # Ignore everything under data fold except README and splits
 data/*

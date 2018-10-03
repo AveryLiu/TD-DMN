@@ -1,5 +1,6 @@
 from constants import *
 import torch
+import logging
 
 
 def sequence_mask(sequence_length, max_len=None):
@@ -41,3 +42,23 @@ def pad_word_attn(word_attn):
         while len(doc) < max_doc_len:
             doc.append([0 for _ in range(max_sent_len)])
     return torch.FloatTensor(word_attn, device=DEVICE)
+
+
+def init_logging(
+        rootlevel=logging.INFO,
+        stdlevel=logging.INFO,
+        errlevel=logging.WARNING):
+    logging.root.setLevel(rootlevel)
+    import sys
+    LOG_FORMAT = '[%(levelname)s][%(asctime)s %(filename)s:%(lineno)d] %(message)s'
+    LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+    formatter = logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT)
+    stdout_handler = logging.StreamHandler(sys.__stdout__)
+    stdout_handler.level = stdlevel
+    stdout_handler.formatter = formatter
+    logging.root.addHandler(stdout_handler)
+    stderr_handler = logging.StreamHandler(sys.__stderr__)
+    stderr_handler.level = errlevel
+    stderr_handler.formatter = formatter
+    logging.root.addHandler(stderr_handler)

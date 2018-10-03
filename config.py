@@ -27,6 +27,6 @@ params = {
         "neg_pos_ratio": 9.5,
         "weight_decay": 1e-5,
         "empty_question": False,   # Change to allow empty questions
-        "conv": True,              # Default to True to fine-tune the word vectors
+        "conv": True,              # Default to True for fine-tuning the word vectors
         "num_of_pass": 1,          # Change to try different number of memory pass
 }

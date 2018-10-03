@@ -6,11 +6,14 @@ from constants import *
 import torch
 import logging
 from utils.ResultWriter import ResultWriter
+from utils.utils import init_logging
 import os
 import datetime
 from tensorboardX import SummaryWriter
 from models.TDDMN import TDDMN
 import json
+from config import params
+import argparse
 
 
 class Trainer(object):
@@ -18,28 +21,30 @@ class Trainer(object):
         self.evaluator = Evaluator(fold=KFOLD_NUM)
         return
 
-    def train(self, model_cls, config, max_training_epoch, patience=96):
+    def train(self, model_cls, params, **kwargs):
+        train_args = kwargs.get("train_args")
+
         logger = logging.getLogger("[TRAIN]")
         logger.setLevel(logging.INFO)
 
-        logging.info(config)
+        logging.info(params)
         iterator = DMNIterator()
 
         writer = SummaryWriter(log_dir="./runs/{}_{}_fold{}_pass{}".format(
-            os.environ.get("identifier"), datetime.datetime.now(),
-            int(os.environ.get("fold_num", 0)), config.get("num_of_pass")))
+            train_args.identifier, datetime.datetime.now(),
+            train_args.fold_num, params.get("num_of_pass")))
 
-        train_batch_size = config.get("train_batch_size")
-        fold_num = int(os.environ.get("fold_num", 0))
-        writer.add_text("config", "{}_{}".format(fold_num, os.environ.get("identifier")))
-        writer.add_text("params", "{}".format(json.dumps(config)))
+        train_batch_size = params.get("train_batch_size")
+        fold_num = train_args.fold_num
+        writer.add_text("config", "{}_{}".format(fold_num, train_args.identifier))
+        writer.add_text("params", "{}".format(json.dumps(params)))
         train_iter, test_iter = iterator.get_iters(train_batch_size, fold_num)
         word_vocab, entity_vocab, label_vocab = iterator.get_vocabs()
-        model = model_cls(word_vocab, entity_vocab, config)
+        model = model_cls(word_vocab, entity_vocab, params)
         model.to(DEVICE)
 
         optimizer = optim.Adam([p for p in model.parameters() if p.requires_grad],
-                               lr=config.get("learning_rate"), weight_decay=config.get("weight_decay"))
+                               lr=params.get("learning_rate"), weight_decay=params.get("weight_decay"))
 
         train_batch = iter(train_iter)
         test_batch = iter(test_iter)
@@ -48,7 +53,7 @@ class Trainer(object):
         patience_counter = 0
         best_test_loss = 100
 
-        while train_iter.epoch < max_training_epoch:
+        while train_iter.epoch < train_args.max_train_epoch:
             batch = next(train_batch)
             (docs, doc_len, sent_len), entities = batch.TEXT, batch.ENTITY
 
@@ -58,7 +63,7 @@ class Trainer(object):
             loss = cal_loss_with_attn(logits, word_attn,
                                       sent_attn, batch.LABEL, batch.WORD_ATTN,
                                       batch.SENT_ATTN, doc_len, sent_len,
-                                      neg_pos_ratio=config.get("neg_pos_ratio", 0),
+                                      neg_pos_ratio=params.get("neg_pos_ratio", 0),
                                       neg_label=label_vocab.stoi["other"], pad_label=label_vocab.stoi[PAD_TOKEN])
 
             # Summary every 10 iteration
@@ -139,7 +144,7 @@ class Trainer(object):
                 else:
                     patience_counter += 1
 
-                if patience_counter > patience:
+                if patience_counter > train_args.patience:
                     break
 
                 logger.info("train iteration:{}, "
@@ -154,36 +159,25 @@ class Trainer(object):
                             "test_loss": float(tot_loss),
                             "test_p": best_p, "test_r": best_r, "test_f": best_f
                        },
-            "params": config
+            "params": params
         }
 
         # write results
         result_writer = ResultWriter("./results")
         identifier = os.environ.get("identifier")
-        result_writer.write_result(identifier, fold_num, config.get("num_of_pass"), report)
-
-
-def init_logging(
-        rootlevel=logging.INFO,
-        stdlevel=logging.INFO,
-        errlevel=logging.WARNING):
-    logging.root.setLevel(rootlevel)
-    import sys
-    LOG_FORMAT = '[%(levelname)s][%(asctime)s %(filename)s:%(lineno)d] %(message)s'
-    LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
-
-    formatter = logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT)
-    stdout_handler = logging.StreamHandler(sys.__stdout__)
-    stdout_handler.level = stdlevel
-    stdout_handler.formatter = formatter
-    logging.root.addHandler(stdout_handler)
-    stderr_handler = logging.StreamHandler(sys.__stderr__)
-    stderr_handler.level = errlevel
-    stderr_handler.formatter = formatter
-    logging.root.addHandler(stderr_handler)
+        result_writer.write_result(identifier, fold_num, params.get("num_of_pass"), report)
 
 
 if __name__ == '__main__':
     init_logging()
-    from config import params
-    Trainer().train(TDDMN, params, max_training_epoch=200)
+
+    parser = argparse.ArgumentParser(description="Parse arguments for model training")
+    parser.add_argument("--identifier", type=str, help="an identifier string that describes the model")
+    parser.add_argument("--fold_num", type=int, help="dictates which fold to use")
+    parser.add_argument("--max_train_epoch", type=int, help="maximum training epoch in training loop")
+    parser.add_argument("--patience", type=int, help="epochs to wait before seeing new lowest test "
+                                                     "loss or new highest test f")
+
+    args = parser.parse_args()
+    # params is model hyper-parameters and train_args is arguments that control training loop
+    Trainer().train(TDDMN, params, train_args=args)
