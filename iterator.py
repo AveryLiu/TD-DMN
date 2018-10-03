@@ -14,7 +14,7 @@ class BaseIterator(object):
         self.NestedInfoField = NestedInfoField
         return
 
-    def get_iters(self, train_batch_size, fold_num):
+    def get_iters(self, train_batch_size, fold_num, vec_name, vec_cache):
         raise NotImplementedError
 
 
@@ -77,7 +77,7 @@ class DMNIterator(BaseIterator):
 
         self.vectors = None
 
-    def get_iters(self, train_batch_size, fold_num):
+    def get_iters(self, train_batch_size, fold_num, vec_name, vec_cache):
         # Load data splits
         train, test = data.TabularDataset.splits(path="./data/fold_{}".format(fold_num), train="train.tsv",
                                                       test="test.tsv", format="tsv",
@@ -90,7 +90,7 @@ class DMNIterator(BaseIterator):
                                                               ("DOC_ID", self.doc_id)])
 
         # First load vectors
-        vector = Vectors(name="GoogleNews-vectors-negative300.txt", cache=".vector_cache/")
+        vector = Vectors(name=vec_name, cache=vec_cache)
 
         # Build vocabs
         self.text_doc.build_vocab(train, test, vectors=vector)
@@ -99,8 +99,8 @@ class DMNIterator(BaseIterator):
 
         # Get iterators
         train_iter, test_iter = data.BucketIterator.splits((train, test),
-                                                            sort=False, batch_sizes=(train_batch_size, 2),
-                                                            repeat=True)
+                                                           sort=False, batch_sizes=(train_batch_size, 2),
+                                                           repeat=True)
         train_iter.shuffle = True
         return train_iter, test_iter
 

@@ -11,7 +11,7 @@ Due to license reason, the ACE 2005 dataset is only accessible to those with **L
 please drop me an email showing your possession of the license for the processed data.
 
 ### Quick Start
-``python train.py --fold_num=0 --identifier="Fold_0_TDDMN" --max_train_epoch=200 --patience=96``
+``python train.py --fold_num=0 --identifier="TDDMN" --max_train_epoch=200 --patience=96``
 
 ### Requirements
 Python 3.6.2 is used while building the TD-DMN model, other versions of python are not tested.

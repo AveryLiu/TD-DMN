@@ -1,4 +1,4 @@
-from constants import *
+from config import *
 import torch
 import logging
 

@@ -4,6 +4,7 @@ __pycache__
 ace2005_processing
 runs/
 *.pyc
+.vector_cache
 
 # Ignore everything under data fold except README and splits
 data/*
