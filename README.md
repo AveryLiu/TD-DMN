@@ -1,7 +1,7 @@
 # TD-DMN
 
-The PyTorch implementation of our EMNLP18 short paper *Exploiting Contextual
-Information via Dynamic Memory Network for Event Detection*.
+The PyTorch implementation of our EMNLP18 short paper [*Exploiting Contextual
+Information via Dynamic Memory Network for Event Detection*](https://liushaobo.me/assets/pdf/emnlp18.pdf).
 
 ![The detailed TD-DMN model](./figures/detailed.jpg)
 
