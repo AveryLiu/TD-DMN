@@ -50,6 +50,17 @@ logs, run ``tensorboard --logdir=tensorboard_log_dir`` and open ``http://localho
 The model results logs are plain text files and can be viewed with text editors.
 
 
+### Citing
+```
+@inproceedings{liu2018exploiting,
+  title={Exploiting Contextual Information via Dynamic Memory Network for Event Detection},
+  author={Liu, Shaobo and Cheng, Rui and Yu, Xiaoming and Cheng, Xueqi},
+  booktitle={Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing},
+  pages={1030--1035},
+  year={2018}
+}
+```
+
 ### Acknowledgement
 The TD-DMN model is based on this [implementation](https://github.com/dandelin/Dynamic-memory-networks-plus-Pytorch) 
 of Dynamic Memory Network plus. We use [torchtext](https://github.com/pytorch/text) as the data loader which is
